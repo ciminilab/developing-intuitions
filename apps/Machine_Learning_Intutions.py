@@ -12,7 +12,7 @@ def _():
     import numpy
     import pandas
     import drawdata
-    return drawdata, mo, numpy, sklearn
+    return drawdata, mo, numpy, pandas, sklearn
 
 
 @app.cell
@@ -48,19 +48,30 @@ def _(mo):
 
 
 @app.cell
-def _(a_group, b_group, c_group, d_group, mo, numpy, sklearn, widget):
+def _(a_group, b_group, c_group, d_group, mo, numpy, pandas, sklearn, widget):
     class_dict = {'a':int(a_group.value),'b':int(b_group.value),'c':int(c_group.value),'d':int(d_group.value)}
     list_of_features = ["x","y"]
     output = ""
     if widget.value["data"]:
-        widget_data = numpy.array(widget.data_as_pandas[list_of_features])
+        widget_data = numpy.array(widget.data_as_pandas[list_of_features+["label"]])
         label = numpy.array(widget.data_as_pandas["label"].map(lambda x: class_dict[x])).T
-        X_train, X_test, y_train, y_test = sklearn.model_selection.train_test_split(widget_data, label, stratify=label, random_state=42,test_size=0.5)
+        X_train_with_label, X_test_with_label, y_train, y_test = sklearn.model_selection.train_test_split(widget_data, label, stratify=label, random_state=42,test_size=0.5)
+        test_wtih_all_labels = pandas.DataFrame(X_test_with_label,columns=["x","y","label"])
+        test_wtih_all_labels["numeric_label"] =y_test
+        X_train = X_train_with_label[:,:-1]
+        X_test = X_test_with_label[:,:-1]
         forest = sklearn.ensemble.RandomForestClassifier(random_state=0)
         forest.fit(X_train, y_train)
         importances=forest.feature_importances_
         indices = numpy.argsort(importances)[::-1]
         output = f"## The accuracy of separating class 1 from class 2 is {(100*forest.score(X_test,y_test)):.2f}%.\n ## The most important features are "+", ".join([f"{list_of_features[indices[f]]}({(100*importances[indices[f]]):.2f}%)" for f in range(len(list_of_features))])
+        true_test_classes = test_wtih_all_labels["label"].unique()
+        true_test_classes.sort()
+        for true_class in true_test_classes:
+            to_test = test_wtih_all_labels.query(f'label=="{true_class}"')
+            to_test_labels = numpy.array(to_test["numeric_label"]).T
+            to_test_data = numpy.array(to_test[list_of_features])
+            output += f"\n ## The per-class accuracy for class {true_class} is {(100*forest.score(to_test_data,to_test_labels)):.2f}%."
     mo.md(output)
     return
 
