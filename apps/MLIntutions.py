@@ -1,0 +1,95 @@
+import marimo
+
+__generated_with = "0.13.11"
+app = marimo.App(width="medium")
+
+
+@app.cell
+def _():
+    import marimo as mo
+    import skimage 
+    import sklearn
+    import numpy
+    import pandas
+    import drawdata
+    return drawdata, mo, numpy, sklearn
+
+
+@app.cell
+def _():
+    # create 4 groups - 1A, 1B, 2A, 2B
+    # vary them on size, shape/footprint (https://scikit-image.org/docs/stable/auto_examples/numpy_operations/plot_structuring_elements.html), color (https://scikit-image.org/docs/stable/auto_examples/color_exposure/plot_tinting_grayscale_images.html); have "wiggle" factor, count
+    # Display up to 20 random, hiding black background
+    # Run sklearn random forest (https://scikit-learn.org/stable/modules/generated/sklearn.ensemble.RandomForestClassifier), report accuracy, top discriminating features (https://scikit-learn.org/stable/auto_examples/ensemble/plot_forest_importances.html#sphx-glr-auto-examples-ensemble-plot-forest-importances-py)
+    return
+
+
+@app.cell
+def _(mo):
+    mo.md("""# Developing Classical Machine Learning Intuitions""")
+    return
+
+
+@app.cell
+def _(drawdata, mo):
+    widget = mo.ui.anywidget(drawdata.ScatterWidget(height=300))
+    widget
+    return (widget,)
+
+
+@app.cell
+def _(mo):
+    a_group = mo.ui.radio(options=["1","2"],value="1",label="What classification group should the blue points from 'a' be assigned to?")
+    b_group = mo.ui.radio(options=["1","2"],value="1",label="What classification group should the orange points from 'b' be assigned to?")
+    c_group = mo.ui.radio(options=["1","2"],value="2",label="What classification group should the green points from 'c' be assigned to?")
+    d_group = mo.ui.radio(options=["1","2"],value="2",label="What classification group should the red points from 'd' be assigned to?")
+    mo.vstack([mo.hstack([a_group,b_group]),mo.hstack([c_group,d_group])])
+    return a_group, b_group, c_group, d_group
+
+
+@app.cell
+def _(a_group, b_group, c_group, d_group, mo, numpy, sklearn, widget):
+    class_dict = {'a':int(a_group.value),'b':int(b_group.value),'c':int(c_group.value),'d':int(d_group.value)}
+    list_of_features = ["x","y"]
+    output = ""
+    if widget.value["data"]:
+        widget_data = numpy.array(widget.data_as_pandas[list_of_features])
+        label = numpy.array(widget.data_as_pandas["label"].map(lambda x: class_dict[x])).T
+        X_train, X_test, y_train, y_test = sklearn.model_selection.train_test_split(widget_data, label, stratify=label, random_state=42,test_size=0.5)
+        forest = sklearn.ensemble.RandomForestClassifier(random_state=0)
+        forest.fit(X_train, y_train)
+        importances=forest.feature_importances_
+        indices = numpy.argsort(importances)[::-1]
+        output = f"## The accuracy of separating class 1 from class 2 is {(100*forest.score(X_test,y_test)):.2f}%.\n ## The most important features are "+", ".join([f"{list_of_features[indices[f]]}({(100*importances[indices[f]]):.2f}%)" for f in range(len(list_of_features))])
+    mo.md(output)
+    return
+
+
+@app.cell
+def _():
+    return
+
+
+@app.cell
+def _():
+    #color_variability = mo.ui.slider(start=0, stop=128, step=2, value=2)
+
+
+    return
+
+
+@app.cell
+def _():
+    #mo.hstack([color_variability, mo.md(f"Has value: {color_variability.value}")],justify="start")
+    return
+
+
+@app.cell
+def _():
+    #shape_variability = mo.ui.range_slider(start=0, stop=3, step=0.1, value=[1,2])
+    #shape_variability
+    return
+
+
+if __name__ == "__main__":
+    app.run()
