@@ -208,7 +208,6 @@ def _():
 
 @app.cell(hide_code=True)
 def _():
-    #TODO - maybe have a crop button
     def load_image(imdesc):
         data_dir = "public/data/"
         loaded_image = skimage.io.imread(os.path.join(mo.notebook_location(), data_dir,imdesc["name"]))
@@ -236,7 +235,7 @@ def _():
 
     }
 
-    im_choice = mo.ui.dropdown(label="Pick an image to use",options=test_images.keys(),value="Human Nuclei")
+    im_choice = mo.ui.dropdown(label="Pick an image to use (if nothing shows up at first, just select any option",options=test_images.keys(),value="Human Nuclei")
     im_choice
     return im_choice, load_image, test_images
 
@@ -283,7 +282,7 @@ def _():
     * TextureTransform(5)
         * *Enhance areas with textures of a particular size. See how it performs on an inverted (vs not) image!*
     """
-    mo.md(lesson_1_funcs)
+    mo.accordion({"See the list of options":mo.md(lesson_1_funcs)})
     return (lesson_1_funcs,)
 
 
