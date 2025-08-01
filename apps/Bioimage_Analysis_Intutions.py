@@ -16,10 +16,9 @@ with app.setup:
         import typing
         import anywidget
         import traitlets
-
+        import pooch
         #import numpy
         #import scipy.ndimage
-        import skimage
         import skimage
         import wigglystuff
         _spinner.update()
