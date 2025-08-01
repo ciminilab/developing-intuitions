@@ -210,7 +210,7 @@ def _():
 def _():
     #TODO - maybe have a crop button
     def load_image(imdesc):
-        data_dir = "images/data/"
+        data_dir = "public/data/"
         loaded_image = skimage.io.imread(os.path.join(mo.notebook_location(), data_dir,imdesc["name"]))
         if imdesc["3D_slice"]:
             loaded_image = skimage.util.img_as_float(loaded_image[imdesc["3D_slice"],:,:])
