@@ -210,8 +210,8 @@ def _():
 def _():
     #TODO - maybe have a crop button
     def load_image(imdesc):
-        data_dir = "apps/images/data/"
-        loaded_image = skimage.io.imread(os.path.join(data_dir,imdesc["name"]))
+        data_dir = "images/data/"
+        loaded_image = skimage.io.imread(os.path.join(mo.notebook_location(), data_dir,imdesc["name"]))
         if imdesc["3D_slice"]:
             loaded_image = skimage.util.img_as_float(loaded_image[imdesc["3D_slice"],:,:])
         if imdesc["hist_deconvolve"]:
@@ -232,8 +232,8 @@ def _():
         "Moon Surface":{"name":"moon.png","orig_color":False,"hist_deconvolve":False,"3D_slice":False, "4D":False},
         "Nuclear Envelope": {"name":"protein_transport.tif","orig_color":False,"hist_deconvolve":False,"3D_slice":False, "4D":True}, 
         "Pompeii Coins":{"name":"coins.png","orig_color":False,"hist_deconvolve":False,"3D_slice":False, "4D":False},
-    
-    
+
+
     }
 
     im_choice = mo.ui.dropdown(label="Pick an image to use",options=test_images.keys(),value="Human Nuclei")
