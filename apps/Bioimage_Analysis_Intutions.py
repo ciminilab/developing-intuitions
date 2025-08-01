@@ -13,11 +13,11 @@ with app.setup:
     __generated_with = "0.13.11"
 
     with mo.status.spinner(title="Installing and importing packages") as _spinner:
+        import os
+        import numpy
         import skimage
         import wigglystuff
         _spinner.update()
-
-    skimage.data.data_dir = "apps/images/data/"
 
 
 @app.class_definition(hide_code=True)
@@ -199,6 +199,8 @@ def _():
         r"""
     #Lesson 1 - Filters of Many Flavors (Making sure the thing I care about is bright, and everything else is dark)
     ## Let's Start With A Raw Image
+
+    All these images come from the `skimage.data` library - see that library for more information on any image!
     """
     )
     return
@@ -207,23 +209,43 @@ def _():
 @app.cell(hide_code=True)
 def _():
     #TODO - maybe have a crop button
+    def load_image(imdesc):
+        data_dir = "apps/images/data/"
+        loaded_image = skimage.io.imread(os.path.join(data_dir,imdesc["name"]))
+        if imdesc["3D_slice"]:
+            loaded_image = skimage.util.img_as_float(loaded_image[imdesc["3D_slice"],:,:])
+        if imdesc["hist_deconvolve"]:
+            loaded_image = skimage.color.rgb2hed(loaded_image)[:,:,2]
+            loaded_image = skimage.util.img_as_float(skimage.exposure.rescale_intensity(loaded_image, in_range = (0, numpy.percentile(loaded_image,99))))
+        if imdesc["4D"]:
+            loaded_image = skimage.util.img_as_float(loaded_image[14,1,:,:])
+        if imdesc["orig_color"]:
+            loaded_image = skimage.util.img_as_float(skimage.color.rgb2gray(loaded_image))
+        return loaded_image
 
     test_images = {
-        "Hubble Deep Field":skimage.util.img_as_float(skimage.color.rgb2gray(skimage.data.hubble_deep_field())), 
-        "Human Nuclei":skimage.data.human_mitosis(),
-        "Pompeii Coins":skimage.data.coins()
+        "Brain Slice":{"name":"brain.tiff","orig_color":False,"hist_deconvolve":False,"3D_slice":5, "4D":False},
+        "Bricks":{"name":"brick.png","orig_color":False,"hist_deconvolve":False,"3D_slice":False, "4D":False},
+        "Hubble Deep Field":{"name":"hubble_deep_field.jpg","orig_color":True,"hist_deconvolve":False,"3D_slice":False, "4D":False}, 
+        "Human Nuclei":{"name":"mitosis.tif","orig_color":False,"hist_deconvolve":False,"3D_slice":False, "4D":False},
+        "Kidney Cells": {"name":"ihc.png","orig_color":False,"hist_deconvolve":True,"3D_slice":False, "4D":False}, 
+        "Moon Surface":{"name":"moon.png","orig_color":False,"hist_deconvolve":False,"3D_slice":False, "4D":False},
+        "Nuclear Envelope": {"name":"protein_transport.tif","orig_color":False,"hist_deconvolve":False,"3D_slice":False, "4D":True}, 
+        "Pompeii Coins":{"name":"coins.png","orig_color":False,"hist_deconvolve":False,"3D_slice":False, "4D":False},
+    
+    
     }
 
     im_choice = mo.ui.dropdown(label="Pick an image to use",options=test_images.keys(),value="Human Nuclei")
     im_choice
-    return im_choice, test_images
+    return im_choice, load_image, test_images
 
 
 @app.cell
-def _(im_choice, test_images):
-    image = test_images[im_choice.value]
+def _(im_choice, load_image, test_images):
+    image = load_image(test_images[im_choice.value])
     processed_image = ProcessedImage(image)
-    mo.image(skimage.util.img_as_ubyte(processed_image.raw))
+    mo.image(processed_image.raw)
     return (processed_image,)
 
 
