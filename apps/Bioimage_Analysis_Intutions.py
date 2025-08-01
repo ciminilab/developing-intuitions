@@ -13,12 +13,6 @@ with app.setup:
     __generated_with = "0.13.11"
 
     with mo.status.spinner(title="Installing and importing packages") as _spinner:
-        import typing
-        import anywidget
-        import traitlets
-        import pooch
-        #import numpy
-        #import scipy.ndimage
         import skimage
         import wigglystuff
         _spinner.update()
