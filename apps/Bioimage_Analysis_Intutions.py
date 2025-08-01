@@ -23,6 +23,8 @@ with app.setup:
         import wigglystuff
         _spinner.update()
 
+    skimage.data.data_dir = "apps/images/data/"
+
 
 @app.class_definition(hide_code=True)
 #TODO - can we figure out how to set a max cache length, without trying to subclass dict ? Couldn't figure it out in ~30 minutes, but would be nice to have. Otherwise, should at least see if we can make cache clearable (same with named cache).
