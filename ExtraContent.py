@@ -6,6 +6,8 @@ app = marimo.App(width="medium")
 with app.setup:
     # Initialization code that runs before all other cells
 
+    #TODO - check that the spinner works when running remote micropip installs, if not maybe see if will work outside the setup cell
+
     import marimo as mo
 
     __generated_with = "0.13.11"
@@ -19,6 +21,8 @@ with app.setup:
 
 
 @app.class_definition(hide_code=True)
+#TODO - can we figure out how to set a max cache length, without trying to subclass dict ? Couldn't figure it out in ~30 minutes, but would be nice to have. Otherwise, should at least see if we can make cache clearable (same with named cache).
+
 class ProcessedImage:
     def __init__(self,im,gt=False):
         self.raw = im
@@ -105,6 +109,16 @@ class ProcessedImage:
         pass
 
     def clip(self):
+        pass
+
+    def threshold_li(self,min=0,max=1,corr_factor=1):
+        """
+        Make sure this gets into the help text somewhere:
+            *Note that for functions with multiple parameters, you can pass all, none, or some, but if some, they must be in order; so if you want to change the 3rd parameter, you have to leave the first two there with their default parameters*
+        """
+        pass
+
+    def threshold_otsu(self,min=0,max=1,corr_factor=1,classes=2,keep_top=1):
         pass
 
     def label(self):
@@ -269,7 +283,7 @@ def _():
         * *Enhance areas with textures of a particular size. See how it performs on an inverted (vs not) image!*
     """
     mo.accordion({"See the list of options":mo.md(lesson_1_funcs)})
-    return
+    return (lesson_1_funcs,)
 
 
 @app.cell
@@ -312,49 +326,71 @@ def _():
 
 @app.cell(hide_code=True)
 def _(imfunctions, processed_image):
+    #TODO - make it so you could show any named intermediates also/instead (but default to just the end of the workflow)
+
     processed_image.parse_vals(imfunctions.value["value"])
-    to_show = processed_image.im
-    mo.image(to_show)
-    return (to_show,)
 
-
-@app.cell
-def _():
-    mo.md(
-        r"""
-    ## What happens now if we try to segment from this image?
-
-    For now, we'll just do a simple thresholding and treat all connected components as part of the same object. We'll talk about more advanced options soon!
-
-    Note that many of these thresholding methods also have tunable parameters; for now, we'll just keep them using their defaults.
-    """
-    )
+    mo.image(processed_image.im)
     return
 
 
 @app.cell
 def _():
-    thresholding_options = {"Li":skimage.filters.threshold_li, "Otsu":skimage.filters.threshold_otsu, "Sauvola":skimage.filters.threshold_sauvola}
-
-    possible_thresholds = list(thresholding_options.keys())
-    threshold = mo.ui.dropdown(label="Pick a thresholding method",options=possible_thresholds,value=possible_thresholds[0])
-    clear_edges = mo.ui.checkbox(label="Remove objects that touch the edge?")
-    mo.vstack([threshold,clear_edges])
-    return clear_edges, threshold, thresholding_options
+    mo.md(r"""# Lesson 2 (Optional) - Filter It, Then Filter It Again (When one round of filtering is not getting it done)""")
+    return
 
 
 @app.cell
-def _(clear_edges, processed_image, threshold, thresholding_options, to_show):
-    #Why aren't we making it part of the class? Because it doesn't respond to changes in .im
+def _():
+    mo.md(r"""### What If We Want to Do Two Kinds of Filtering""")
+    return
 
-    def threshold_and_label(processed_image, raw_image, thresh_dict, threshold_name, do_clear_edges, size_range):
-        to_label = processed_image > thresh_dict[threshold_name](processed_image)
-        if do_clear_edges:
-            to_label = skimage.segmentation.clear_border(to_label)
-        labels = skimage.measure.label(to_label)
-        return skimage.color.label2rgb(labels,image=raw_image, bg_label=0)
 
-    mo.image(threshold_and_label(to_show, processed_image.raw, thresholding_options,threshold.value,clear_edges.value,False))
+@app.cell
+def _():
+    lesson_2_funcs = r"""
+    **These functions are designed for letting you go down one or more "paths" (maybe blurring in one and then speckle enhancing in another) and then doing math between outputs (or the original loaded image). They're incredibly handy once you're comfortable, but don't need to be part of your initial thinking!**
+
+    * Raw
+        * *Return to the loaded raw image*
+    * Save Last Step As("somename")
+        * *Save the last step with a distinct name so that you can do mathematical operations. The name must be in quotes (so `SaveLastStepAs("A")` is fine but `SaveLastStepAs(B)` is not. Do not use numbers as the names (`Image2` is fine, but `2` is not) or  the literal name "Current".
+    * Subtract(A,B) 
+        * *Subtract a second image OR a number from the first image (so `Subtract("Current","A")` and `Subtract("B",0.3)` are fine; `Subtract(0.3,"B")` is not (there's really never a reason to do that). `Current` will let you use the current image without using a Save Last Step As*
+        """
+    mo.md(lesson_2_funcs)
+    return
+
+
+@app.cell(hide_code=True)
+def _(lesson_1_funcs):
+
+    mo.accordion({"### Reminder of your original functions":lesson_1_funcs})
+    return
+
+
+@app.cell
+def _():
+    mo.md(r"""## Let's get filtering (again)!""")
+    return
+
+
+@app.cell
+def _():
+    mo.md(r"""# Lesson 3 - Stuff vs Not Stuff (Thresholding)""")
+    return
+
+
+@app.cell
+def _():
+    #TODO - fancy view visualization (raw, processed, labels/outlines, stats)
+    #TODOAFTER - accuracy visualization
+    return
+
+
+@app.cell
+def _():
+    mo.md(r"""# Lesson 4 - Not Just Stuff but The Right Stuff (Tweaking your segmentations)""")
     return
 
 
