@@ -1,18 +1,18 @@
 import marimo
 
-__generated_with = "0.13.11"
+__generated_with = "0.14.12"
 app = marimo.App(width="medium")
 
 
 @app.cell
 def _():
     import marimo as mo
-    import skimage 
     import sklearn
     import numpy
     import pandas
     import drawdata
-    return drawdata, mo, numpy, pandas, sklearn
+    import matplotlib.pyplot as plt
+    return drawdata, mo, numpy, pandas, plt, sklearn
 
 
 @app.cell
@@ -48,10 +48,22 @@ def _(mo):
 
 
 @app.cell
-def _(a_group, b_group, c_group, d_group, mo, numpy, pandas, sklearn, widget):
+def _(
+    a_group,
+    b_group,
+    c_group,
+    d_group,
+    mo,
+    numpy,
+    pandas,
+    plt,
+    sklearn,
+    widget,
+):
     class_dict = {'a':int(a_group.value),'b':int(b_group.value),'c':int(c_group.value),'d':int(d_group.value)}
     list_of_features = ["x","y"]
     output = ""
+    fig = mo.md("")
     if widget.value["data"]:
         widget_data = numpy.array(widget.data_as_pandas[list_of_features+["label"]])
         label = numpy.array(widget.data_as_pandas["label"].map(lambda x: class_dict[x])).T
@@ -64,20 +76,31 @@ def _(a_group, b_group, c_group, d_group, mo, numpy, pandas, sklearn, widget):
         forest.fit(X_train, y_train)
         importances=forest.feature_importances_
         indices = numpy.argsort(importances)[::-1]
-        output = f"## The accuracy of separating class 1 from class 2 is {(100*forest.score(X_test,y_test)):.2f}%.\n ## The most important features are "+", ".join([f"{list_of_features[indices[f]]}({(100*importances[indices[f]]):.2f}%)" for f in range(len(list_of_features))])
+        output = f"### The accuracy of separating class 1 from class 2 is {(100*forest.score(X_test,y_test)):.2f}%.\n ### The most important features are "+", ".join([f"{list_of_features[indices[f]]}({(100*importances[indices[f]]):.2f}%)" for f in range(len(list_of_features))])
         true_test_classes = test_wtih_all_labels["label"].unique()
         true_test_classes.sort()
         for true_class in true_test_classes:
             to_test = test_wtih_all_labels.query(f'label=="{true_class}"')
             to_test_labels = numpy.array(to_test["numeric_label"]).T
             to_test_data = numpy.array(to_test[list_of_features])
-            output += f"\n ## The per-class accuracy for class {true_class} is {(100*forest.score(to_test_data,to_test_labels)):.2f}%."
+            output += f"\n ### The per-class accuracy for class {true_class} is {(100*forest.score(to_test_data,to_test_labels)):.2f}%."
+            fig, axs = plt.subplots(3,3,figsize=(10, 10), layout='constrained')
+        for ax, i in zip(axs.flat,range(9)):
+            tree = forest.estimators_[i]
+            sklearn.tree.plot_tree(tree,feature_names=list_of_features, class_names=["1","2"],ax=ax,rounded=True)
     mo.md(output)
+    return (fig,)
+
+
+@app.cell
+def _(mo):
+    mo.md("""----- \n ## What do some of those decision trees actually look like? Let's check out the top 9""")
     return
 
 
 @app.cell
-def _():
+def _(fig):
+    fig
     return
 
 
