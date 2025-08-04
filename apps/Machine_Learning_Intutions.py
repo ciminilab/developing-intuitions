@@ -84,12 +84,12 @@ def _(
             to_test_labels = numpy.array(to_test["numeric_label"]).T
             to_test_data = numpy.array(to_test[list_of_features])
             output += f"\n ### The per-class accuracy for class {true_class} is {(100*forest.score(to_test_data,to_test_labels)):.2f}%."
-            fig, axs = plt.subplots(3,3,figsize=(10, 10), layout='constrained')
+        fig, axs = plt.subplots(3,3,figsize=(10, 10), layout='constrained')
         for ax, i in zip(axs.flat,range(9)):
             tree = forest.estimators_[i]
             sklearn.tree.plot_tree(tree,feature_names=list_of_features, class_names=["1","2"],ax=ax,rounded=True)
     mo.md(output)
-    return (fig,)
+    return fig, forest, list_of_features
 
 
 @app.cell
@@ -101,6 +101,21 @@ def _(mo):
 @app.cell
 def _(fig):
     fig
+    return
+
+
+@app.cell
+def _(mo):
+    tree_to_look = mo.ui.number(label="Look up tree number:", start=0,stop=99,step=1)
+    mo.vstack([mo.md("## Call up any individual tree you want"),tree_to_look])
+    return (tree_to_look,)
+
+
+@app.cell
+def _(forest, list_of_features, plt, sklearn, tree_to_look):
+    fig2,ax2 = plt.subplots(1,1,figsize=(10, 10), layout='constrained')
+    sklearn.tree.plot_tree(forest.estimators_[tree_to_look.value],feature_names=list_of_features, class_names=["1","2"],rounded=True,ax=ax2)
+
     return
 
 
