@@ -16,15 +16,6 @@ def _():
 
 
 @app.cell
-def _():
-    # create 4 groups - 1A, 1B, 2A, 2B
-    # vary them on size, shape/footprint (https://scikit-image.org/docs/stable/auto_examples/numpy_operations/plot_structuring_elements.html), color (https://scikit-image.org/docs/stable/auto_examples/color_exposure/plot_tinting_grayscale_images.html); have "wiggle" factor, count
-    # Display up to 20 random, hiding black background
-    # Run sklearn random forest (https://scikit-learn.org/stable/modules/generated/sklearn.ensemble.RandomForestClassifier), report accuracy, top discriminating features (https://scikit-learn.org/stable/auto_examples/ensemble/plot_forest_importances.html#sphx-glr-auto-examples-ensemble-plot-forest-importances-py)
-    return
-
-
-@app.cell
 def _(mo):
     mo.md("""# Developing Classical Machine Learning Intuitions""")
     return
@@ -43,16 +34,30 @@ def _(mo):
     b_group = mo.ui.radio(options=["1","2"],value="1",label="What classification group should the orange points from 'b' be assigned to?")
     c_group = mo.ui.radio(options=["1","2"],value="2",label="What classification group should the green points from 'c' be assigned to?")
     d_group = mo.ui.radio(options=["1","2"],value="2",label="What classification group should the red points from 'd' be assigned to?")
-    mo.vstack([mo.hstack([a_group,b_group]),mo.hstack([c_group,d_group])])
+    mo.vstack([mo.hstack([a_group,b_group]),mo.hstack([c_group,d_group]),mo.md("--------")])
     return a_group, b_group, c_group, d_group
+
+
+@app.cell
+def _(mo):
+    a_size = mo.ui.range_slider(start=1, stop=10, step=1, value=[2, 6],label="What 'size range' should we pretend the blue points from 'a' are?", show_value=True)
+    b_size = mo.ui.range_slider(start=1, stop=10, step=1, value=[2, 6],label="What 'size range' should we pretend the orange points from 'b' are?", show_value=True)
+    c_size = mo.ui.range_slider(start=1, stop=10, step=1, value=[2, 6],label="What 'size range' should we pretend the green points from 'c' are?", show_value=True)
+    d_size = mo.ui.range_slider(start=1, stop=10, step=1, value=[2, 6],label="What 'size range' should we pretend the red points from 'd' are?", show_value=True)
+    mo.vstack([a_size,b_size,c_size,d_size,mo.md("--------")])
+    return a_size, b_size, c_size, d_size
 
 
 @app.cell
 def _(
     a_group,
+    a_size,
     b_group,
+    b_size,
     c_group,
+    c_size,
     d_group,
+    d_size,
     mo,
     numpy,
     pandas,
@@ -60,15 +65,26 @@ def _(
     sklearn,
     widget,
 ):
+
+    rng = numpy.random.default_rng(0)
     class_dict = {'a':int(a_group.value),'b':int(b_group.value),'c':int(c_group.value),'d':int(d_group.value)}
-    list_of_features = ["x","y"]
+
+    def return_size(user_class):
+        size_class_dict = {'a':a_size.value,'b':b_size.value,'c':c_size.value,'d':d_size.value}
+        return(rng.integers(low=size_class_dict[user_class][0],high=size_class_dict[user_class][1],size=1))
+
+    list_of_features = ["x","y","size"]
     output = ""
     fig = mo.md("")
     if widget.value["data"]:
-        widget_data = numpy.array(widget.data_as_pandas[list_of_features+["label"]])
+        data_no_size = widget.data_as_pandas[["x","y","label"]]
+        data_no_size["size"] = widget.data_as_pandas["label"].map(lambda x: return_size(x))
+        data_with_size = data_no_size[list_of_features+["label"]]
+        widget_data = numpy.array(data_with_size)
         label = numpy.array(widget.data_as_pandas["label"].map(lambda x: class_dict[x])).T
+        print(widget_data.shape,label.shape)
         X_train_with_label, X_test_with_label, y_train, y_test = sklearn.model_selection.train_test_split(widget_data, label, stratify=label, random_state=42,test_size=0.5)
-        test_wtih_all_labels = pandas.DataFrame(X_test_with_label,columns=["x","y","label"])
+        test_wtih_all_labels = pandas.DataFrame(X_test_with_label,columns=["x","y","size","label"])
         test_wtih_all_labels["numeric_label"] =y_test
         X_train = X_train_with_label[:,:-1]
         X_test = X_test_with_label[:,:-1]
@@ -76,7 +92,7 @@ def _(
         forest.fit(X_train, y_train)
         importances=forest.feature_importances_
         indices = numpy.argsort(importances)[::-1]
-        output = f"### The accuracy of separating class 1 from class 2 is {(100*forest.score(X_test,y_test)):.2f}%.\n ### The most important features are "+", ".join([f"{list_of_features[indices[f]]}({(100*importances[indices[f]]):.2f}%)" for f in range(len(list_of_features))])
+        output = f"## Results: \n ### The accuracy of separating class 1 from class 2 is {(100*forest.score(X_test,y_test)):.2f}%.\n ### The most important features are "+", ".join([f"{list_of_features[indices[f]]}({(100*importances[indices[f]]):.2f}%)" for f in range(len(list_of_features))])
         true_test_classes = test_wtih_all_labels["label"].unique()
         true_test_classes.sort()
         for true_class in true_test_classes:
