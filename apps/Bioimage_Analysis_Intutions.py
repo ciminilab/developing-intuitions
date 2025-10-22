@@ -1,7 +1,7 @@
 import marimo
 
 __generated_with = "0.14.12"
-app = marimo.App(width="medium")
+app = marimo.App(width="medium", html_head_file="head.html")
 
 with app.setup:
     # Initialization code that runs before all other cells
