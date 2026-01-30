@@ -116,7 +116,7 @@ class ProcessedImage:
     def score(self):
         pass
 
-    def distance_tranform(self):
+    def distance_transform(self):
         pass
 
     def fill_holes(self,diam=False):
@@ -259,7 +259,7 @@ def _():
         * *Rolling ball background subtraction; Number in parentheses equals: diameter (in pixels) of the ball to be rolled*
     * Invert
         * *Invert the image (best for grayscale, or after something like ridge enhancement*
-    * PowerTranform(1)
+    * PowerTransform(1)
         * *Multiply the image by an exponent - an exponent value of >1 will make the brightest and dimmest pixel be proportionately farther from each other (but all at lower absolute numbers); conversely, an exponent of <1 will decrease the fold-change between foreground and background but will make the numbers higher. A value of 1 will do nothing!*
     * Tophat(5)
         * *Enhance round-ish things of the diameter passed in - remove anything larger than that diameter, approximately.*
