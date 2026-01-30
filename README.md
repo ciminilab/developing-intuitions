@@ -1,68 +1,11 @@
-# marimo WebAssembly + GitHub Pages Template
+# Developing Intuitions
 
-This template repository demonstrates how to export [marimo](https://marimo.io) notebooks to WebAssembly and deploy them to GitHub Pages.
+Interactive notebooks to help users develop intuitions through hands-on exploration. Developed by biologists for biologists.
 
-## 📚 Included Examples
+## Machine Learning Intuitions
 
-- `apps/charts.py`: Interactive data visualization with Altair
-- `notebooks/fibonacci.py`: Interactive Fibonacci sequence calculator
-- `notebooks/penguins.py`: Interactive data analysis with Polars and marimo
+[Try the app](https://ciminilab.github.io/developing-intuitions/apps/Machine_Learning_Intutions.html)
 
-## 🚀 Usage
+## Bioimage Analysis Intuitions
 
-1. Fork this repository
-2. Add your marimo files to the `notebooks/` or `apps/` directory
-   1. `notebooks/` notebooks are exported with `--mode edit`
-   2. `apps/` notebooks are exported with `--mode run`
-3. Push to main branch
-4. Go to repository **Settings > Pages** and change the "Source" dropdown to "GitHub Actions"
-5. GitHub Actions will automatically build and deploy to Pages
-
-## Including data or assets
-
-To include data or assets in your notebooks, add them to the `public/` directory.
-
-For example, the `apps/charts.py` notebook loads an image asset from the `public/` directory.
-
-```markdown
-<img src="public/logo.png" width="200" />
-```
-
-And the `notebooks/penguins.py` notebook loads a CSV dataset from the `public/` directory.
-
-```python
-import polars as pl
-df = pl.read_csv(mo.notebook_location() / "public" / "penguins.csv")
-```
-
-## 🎨 Templates
-
-This repository includes several templates for the generated site:
-
-1. `index.html.j2` (default): A template with styling and a footer
-2. `bare.html.j2`: A minimal template with basic styling
-3. `tailwind.html.j2`: A minimal and lean template using Tailwind CSS
-
-To use a specific template, pass the `--template` parameter to the build script:
-
-```bash
-uv run .github/scripts/build.py --template templates/tailwind.html.j2
-```
-
-You can also create your own custom templates. See the [templates/README.md](templates/README.md) for more information.
-
-## 🧪 Testing
-
-To test the export process, run `.github/scripts/build.py` from the root directory.
-
-```bash
-uv run .github/scripts/build.py
-```
-
-This will export all notebooks in a folder called `_site/` in the root directory. Then to serve the site, run:
-
-```bash
-python -m http.server -d _site
-```
-
-This will serve the site at `http://localhost:8000`.
+[Try the app](https://ciminilab.github.io/developing-intuitions/apps/Bioimage_Analysis_Intutions.html)
