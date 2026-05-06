@@ -1,3 +1,12 @@
+# /// script
+# requires-python = ">=3.12"
+# dependencies = [
+#     "marimo==0.14.2",
+#     "numpy>=2.4.4",
+#     "scikit-image>=0.26.0",
+#     "wigglystuff>=0.4.1",
+# ]
+# ///
 import marimo
 
 __generated_with = "0.14.12"
