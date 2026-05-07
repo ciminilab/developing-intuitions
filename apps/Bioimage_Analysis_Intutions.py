@@ -4,6 +4,7 @@
 #     "marimo==0.14.2",
 #     "numpy>=2.4.4",
 #     "scikit-image>=0.26.0",
+#     "tifffile>=2026.5.2",
 #     "wigglystuff>=0.4.1",
 # ]
 # ///
