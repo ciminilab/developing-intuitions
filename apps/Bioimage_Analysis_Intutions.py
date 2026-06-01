@@ -4,7 +4,6 @@
 #     "marimo==0.14.12",
 #     "numpy==2.2.6",
 #     "scikit-image==0.25.2",
-#     "tifffile==2025.5.24",
 #     "wigglystuff>=0.4.1",
 #     "pillow==11.2.1",
 # ]
@@ -26,7 +25,14 @@ with app.setup:
         import numpy
         import skimage
         import wigglystuff
+        import micropip
         _spinner.update()
+
+@app.cell(hide_code=True)
+def _():
+    await micropip.install("tifffile==2025.5.24")
+    import tifffile
+    return
 
 
 @app.class_definition(hide_code=True)
