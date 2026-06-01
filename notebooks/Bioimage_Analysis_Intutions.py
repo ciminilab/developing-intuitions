@@ -4,7 +4,7 @@
 #     "marimo==0.14.12",
 #     "numpy==2.2.6",
 #     "scikit-image==0.25.2",
-#     "tifffile==2025.5.24",
+#     "imageio==2.37.0",
 #     "wigglystuff>=0.4.1",
 #     "pillow==11.2.1",
 # ]
